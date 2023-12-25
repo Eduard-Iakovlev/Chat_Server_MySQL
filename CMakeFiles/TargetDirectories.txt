@@ -1,0 +1,3 @@
+/home/eduard/projects/Chat/Chat_Server/CMakeFiles/Chat_Server.dir
+/home/eduard/projects/Chat/Chat_Server/CMakeFiles/edit_cache.dir
+/home/eduard/projects/Chat/Chat_Server/CMakeFiles/rebuild_cache.dir
