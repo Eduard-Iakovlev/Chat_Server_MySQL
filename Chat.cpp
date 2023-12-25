@@ -7,6 +7,7 @@ Chat::Chat(){
 Chat::Chat(std::string active_user_login, std::string active_recipient_login, std::string active_user_name) :
 	_active_user_login(active_user_login), _active_recipient_login(active_recipient_login), _active_user_name(active_user_name) {}
 
+//------------------------------- Работа СУБД ------------------------------------------------
 // Проверка на получение дискриптора
 void Chat::test_msql_descriptor() {
 MYSQL mysql; // Дескриптор соединения c MySql
@@ -31,7 +32,9 @@ MYSQL mysql; // Дескриптор соединения c MySql
 	// Закрываем соединение с базой данных
 	mysql_close(&mysql);
 }
+//--------------------------------------------------------------------------------------------
 
+//--------------------------------- Работа сети ----------------------------------------------
 //----------- Создание сокета ---------------------------
 void Chat::socket_file() {
 	_socket_file_descriptor = socket(AF_INET, SOCK_STREAM, 0);
@@ -113,6 +116,7 @@ void Chat::transmitting(const std::string& mess){
 	ssize_t bytes = write(_connection, _message, sizeof(_message));
 	transmitted(message());
 }
+//----------------------------------------
 
 //-------------- Прием данных от пользователе --------------------
 void Chat::receiving_user() {
@@ -126,6 +130,7 @@ char Chat::message0() {
 	return _message[0];
 }
 
+//------------- Перевод сообщения в string ---------------------------
 std::string Chat::message() {
 	return std::string(_message);
 }
@@ -141,6 +146,9 @@ void Chat::transmitted(std::string mess){
 	std::time_t end_time = std::chrono::system_clock::to_time_t(now);
 	std::cout << std::ctime(&end_time) << " передано: " << mess << std::endl;
 }
+//------------------------------------------------------------------------------------------
+
+//---------------- Работа чата -------------------------------------------------------------
 
 //---------------- Приветствие ------------------------------------------------------------
 void Chat::greeting() {
