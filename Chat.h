@@ -29,7 +29,8 @@ public:
 	Chat(std::string, std::string, std::string);
 
 	//------------------------------ Работа СУБД -----------------------------------
-	void test_msql_descriptor(); // проверка на получение дискриптора
+    void reg_data_mysql(char ch[]);// ввод пользователя и пароля mysql
+    void test_msql_descriptor(); // проверка на получение дискриптора
 
 	//------------------------------------------------------------------------------
 
@@ -91,6 +92,10 @@ private:
 	socklen_t _length;
 	char _message[MESSAGE_LENGTH];
 
+	int not_db = 1049;
+	char username_db[20]{};
+	char password_db[20]{};
+
 
 	std::map <std::string, User> _users;
 	std::vector<Message> _messages;
@@ -99,7 +104,7 @@ private:
 	std::string _active_user_name;
 
 	char _menu;
-
+	
 	bool _work{ true };
 	bool _check_user{ false };
 	bool _discussion{ true };

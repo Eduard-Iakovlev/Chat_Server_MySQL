@@ -8,6 +8,16 @@ Chat::Chat(std::string active_user_login, std::string active_recipient_login, st
 	_active_user_login(active_user_login), _active_recipient_login(active_recipient_login), _active_user_name(active_user_name) {}
 
 //------------------------------- Работа СУБД ------------------------------------------------
+// ввод пользователя и пароля mysql
+void Chat::reg_data_mysql(char ch[]){
+	std::string str_tmp;
+	std::cin >> str_tmp;
+	for (int i = 0; i < str_tmp.size(); i++){
+		ch[i] = str_tmp[i];
+	};
+	str_tmp.clear();
+}
+
 // Проверка на получение дискриптора
 void Chat::test_msql_descriptor() {
 MYSQL mysql; // Дескриптор соединения c MySql
@@ -18,8 +28,13 @@ MYSQL mysql; // Дескриптор соединения c MySql
 		std::cout << "Error: can't create MySQL-descriptor" << std::endl;
 	}
 
+	std::cout << " Enter username of your database MySQL: ";
+	reg_data_mysql(username_db);
+	std::cout << " Enter password of your database MySQL: ";
+	reg_data_mysql(password_db);
+
 	// Подключаемся к серверу
-	if (!mysql_real_connect(&mysql, "localhost", "eduard", "300974", "testdb", 0, NULL, 0)) {
+	if (!mysql_real_connect(&mysql, "localhost", username_db, password_db, "testdb", 0, NULL, 0)) {
 		// Если нет возможности установить соединение с БД выводим сообщение об ошибке
 		std::cout << "Error: can't connect to database " << mysql_error(&mysql) << std::endl;
 	}
@@ -334,7 +349,7 @@ void Chat::send_message() {
 //----------------- Основная функция работы чата -------------------------------------------
 void Chat::chat_work(){
 	reg_all_user();
-
+	
 	test_msql_descriptor();
 	socket_file();
 	server_address();
