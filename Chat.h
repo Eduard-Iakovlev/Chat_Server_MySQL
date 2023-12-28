@@ -30,7 +30,10 @@ public:
 
 	//------------------------------ Работа СУБД -----------------------------------
     void reg_data_mysql(char ch[]);// ввод пользователя и пароля mysql
-    void test_msql_descriptor(); // проверка на получение дискриптора
+    void test_msql_descriptor(MYSQL& ms); // проверка на получение дискриптора
+	bool connect_to_db(MYSQL& ms); // подключение к базе данных
+	void create_database(MYSQL& ms); // создание базы дынных
+	void create_table(MYSQL& ms); // создание таблиц
 
 	//------------------------------------------------------------------------------
 
@@ -95,6 +98,9 @@ private:
 	int not_db = 1049;
 	char username_db[20]{};
 	char password_db[20]{};
+	const char* database_chat = "chat";
+	std::string table_users = "users";
+	std::string table_mess = "messages";
 
 
 	std::map <std::string, User> _users;
