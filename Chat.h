@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include<iostream>
+#include <iostream>
 #include<string>
 #include<string.h>
 #include<unistd.h>
@@ -29,7 +29,7 @@ public:
 	Chat(std::string, std::string, std::string);
 
 	//------------------------------ Работа СУБД -----------------------------------
-    void reg_data_mysql(char ch[]);// ввод пользователя и пароля mysql
+    std::string reg_data_mysql();// ввод пользователя и пароля mysql
     void test_msql_descriptor(MYSQL& ms); // проверка на получение дискриптора
 	bool connect_to_db(MYSQL& ms); // подключение к базе данных
 	void create_database(MYSQL& ms); // создание базы дынных
@@ -96,9 +96,9 @@ private:
 	char _message[MESSAGE_LENGTH];
 
 	int not_db = 1049;
-	char username_db[20]{};
-	char password_db[20]{};
-	const char* database_chat = "chat";
+	std::string username_db;
+	std::string password_db;
+	std::string database_chat = "chat";
 	std::string table_users = "users";
 	std::string table_mess = "messages";
 

@@ -9,13 +9,10 @@ Chat::Chat(std::string active_user_login, std::string active_recipient_login, st
 
 //----------------------------------------------------- Работа СУБД ------------------------------------------------
 //---------------- ввод пользователя и пароля mysql -------------------
-void Chat::reg_data_mysql(char ch[]){
-	std::string str_tmp;
-	std::cin >> str_tmp;
-	for (int i = 0; i < str_tmp.size(); i++){
-		ch[i] = str_tmp[i];
-	};
-	str_tmp.clear();
+std::string Chat::reg_data_mysql(){
+	std::string str;
+	std::cin >> str;
+	return str;
 }
 
 //------------------ Проверка на получение дискриптора ------------------
@@ -26,18 +23,18 @@ void Chat::test_msql_descriptor(MYSQL& ms) {
 		std::cout << " Error: can't create MySQL-descriptor" << std::endl;
 		exit(1);
 	};
-	std::cout << " MySQL-descriptor OK" << std::endl;
+	std::cout << " MySQL-descriptor created" << std::endl;
 }
 
 //-------------------- Подключаемся к базе данных ----------------------
 bool Chat::connect_to_db(MYSQL& ms){
 	while(true){
 		std::cout << " Enter username of your database MySQL: ";
-		reg_data_mysql(username_db);
+		username_db = reg_data_mysql();
 		std::cout << " Enter password of your database MySQL: ";
-		reg_data_mysql(password_db);
+		password_db = reg_data_mysql();
 
-		if (!mysql_real_connect(&ms, "localhost", username_db, password_db, database_chat, 3306, NULL, 0)) {
+		if (!mysql_real_connect(&ms, "localhost", username_db.c_str(), password_db.c_str(), database_chat.c_str(), 0, NULL, 0)) {
 			// Если нет возможности установить соединение с БД выводим сообщение об ошибке
 			std::cout << "Error: can't connect to database " << mysql_error(&ms) << std::endl;
 			if (mysql_errno(&ms) == not_db){
@@ -60,7 +57,7 @@ bool Chat::connect_to_db(MYSQL& ms){
 
 //----------------------- Сщздание базы двнных -------------------------
 void Chat::create_database(MYSQL&ms){
-	mysql_real_connect(&ms, "localhost", username_db, password_db, NULL, 0, NULL, 0);
+	mysql_real_connect(&ms, "localhost", username_db.c_str(), password_db.c_str(), NULL, 0, NULL, 0);
 	mysql_query(&ms, "CREATE DATABASE chat");
 	mysql_query(&ms, "USE chat");
 	std::cout << " Created database chat" << std::endl;
