@@ -34,6 +34,7 @@ public:
 	bool connect_to_db(MYSQL& ms); // подключение к базе данных
 	void create_database(MYSQL& ms); // создание базы дынных
 	void create_table(MYSQL& ms); // создание таблиц
+	void insert_into_users(MYSQL& ms, std::string db, std::string log, std::string name, std::string hash); // Вставкаданныых в таблицу пользователя
 
 	//------------------------------------------------------------------------------
 

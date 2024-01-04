@@ -67,8 +67,16 @@ void Chat::create_database(MYSQL&ms){
 void Chat::create_table(MYSQL& ms){
 	mysql_query(&ms, "CREATE TABLE users(id INT AUTO_INCREMENT PRIMARY KEY, login VARCHAR(255) NOT NULL UNIQUE, name VARCHAR(255), hash VARCHAR(255))");
 	mysql_query(&ms, "USE chat");
-	mysql_query(&ms, "INSERT INTO users(id, login, name, hash) VALUES (default, 'ALL USERS', 'Общий чат', 'root')");
+	insert_into_users(ms, table_users, "ALL USERS", "Общий чат", "root");
 	mysql_query(&ms, "CREATE TABLE messages(id INT AUTO_INCREMENT PRIMARY KEY, date_time DATETIME, sender VARCHAR(255), recipient varchar(255), event VARCHAR(255), mess TEXT)");
+}
+
+//----------------------- Вставка данных в таблицу пользователей --------
+void Chat::insert_into_users(MYSQL&ms, std::string db, std::string log, std::string name, std::string hash){
+	std::string str = "INSERT INTO " + db + "(id, login, name, hash) VALUES (default, \'" + log + "\', \'" + name + "\', \'" + hash + "\')";
+	if (!mysql_query(&ms, str.c_str())) 
+		std::cout << " Участник "<< log << " добавлен" << std::endl;
+		else std::cout << " Error: участник "<< log << " не добавлен" << std::endl << mysql_error(&ms) << std::endl;
 }
 
 //--------------------------------------------------------------------------------------------
