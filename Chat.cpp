@@ -57,18 +57,30 @@ bool Chat::connect_to_db(MYSQL& ms){
 
 //----------------------- Сщздание базы двнных -------------------------
 void Chat::create_database(MYSQL&ms){
-	mysql_real_connect(&ms, "localhost", username_db.c_str(), password_db.c_str(), NULL, 0, NULL, 0);
-	mysql_query(&ms, "CREATE DATABASE chat");
-	mysql_query(&ms, "USE chat");
-	std::cout << " Created database chat" << std::endl;
+	if(!mysql_real_connect(&ms, "localhost", username_db.c_str(), password_db.c_str(), NULL, 0, NULL, 0))
+		std::cout << " Error: don't connect to server MySQL" << mysql_error(&ms) << std::endl;
+		else std::cout << " Connected to server MySQL" << std::endl;
+
+	if(!mysql_query(&ms, "CREATE DATABASE chat"))
+		std::cout << " Created database chat" << std::endl;
+		else std::cout << " Error: don't create database chat" << std::endl;
+
+	if(!mysql_query(&ms, "USE chat"))
+		std::cout << " use chat applied" << std::endl;
+		else std::cout << " Error: don't use database chat" << std::endl;
 }
 
 //----------------------- Создание таблицы ------------------------------
 void Chat::create_table(MYSQL& ms){
-	mysql_query(&ms, "CREATE TABLE users(id INT AUTO_INCREMENT PRIMARY KEY, login VARCHAR(255) NOT NULL UNIQUE, name VARCHAR(255), hash VARCHAR(255))");
-	mysql_query(&ms, "USE chat");
+	if(!mysql_query(&ms, "CREATE TABLE users(id INT AUTO_INCREMENT PRIMARY KEY, login VARCHAR(255) NOT NULL UNIQUE, name VARCHAR(255), hash VARCHAR(255))"))
+		std::cout << " Table " << table_users << " create" <<std::endl;
+		else std::cout << " Error: don't created table " << table_users << mysql_error(&ms) << std::endl;
+
 	insert_into_users(ms, table_users, "ALL USERS", "Общий чат", "root");
-	mysql_query(&ms, "CREATE TABLE messages(id INT AUTO_INCREMENT PRIMARY KEY, date_time DATETIME, sender VARCHAR(255), recipient varchar(255), event VARCHAR(255), mess TEXT)");
+
+	if(!mysql_query(&ms, "CREATE TABLE messages(id INT AUTO_INCREMENT PRIMARY KEY, date_time DATETIME, sender VARCHAR(255), recipient varchar(255), event VARCHAR(255), mess TEXT)"))
+		std::cout << " Table " << table_mess << " creared" << std::endl;
+		else std::cout << " Error: don't created table " << table_mess << mysql_error(&ms) << std::endl;
 }
 
 //----------------------- Вставка данных в таблицу пользователей --------
