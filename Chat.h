@@ -89,12 +89,12 @@ public:
 
 
 private:
-
+	// -------------- переменные сети -----------
 	int _socket_file_descriptor, _connection, _bind_status, _connection_status;
 	struct sockaddr_in _server_address, _client;
 	socklen_t _length;
 	char _message[MESSAGE_LENGTH];
-
+	// --------------- переменные СУБД ------------
 	int not_db = 1049;
 	std::string username_db;
 	std::string password_db;
@@ -102,7 +102,7 @@ private:
 	std::string table_users = "users";
 	std::string table_mess = "messages";
 
-
+	// ---------------- переменные чата ---------
 	std::map <std::string, User> _users;
 	std::vector<Message> _messages;
 	std::string _active_user_login;
