@@ -35,6 +35,8 @@ public:
 	void create_database(MYSQL& ms); // создание базы дынных
 	void create_table(MYSQL& ms); // создание таблиц
 	void insert_into_users(MYSQL& ms, std::string db, std::string log, std::string name, std::string hash); // Вставкаданныых в таблицу пользователя
+	void insert_into_messsage(MYSQL& ms, std::string db, std::string send, std::string rec, std::string ev, std::string mess); // Вставка в таблицу сообщений
+	void show_table(MYSQL& ms, MYSQL_RES* res, MYSQL_ROW& row, std::string table); // Вывод таблицы
 
 	//------------------------------------------------------------------------------
 

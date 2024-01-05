@@ -73,14 +73,16 @@ void Chat::create_database(MYSQL&ms){
 //----------------------- Создание таблицы ------------------------------
 void Chat::create_table(MYSQL& ms){
 	if(!mysql_query(&ms, "CREATE TABLE users(id INT AUTO_INCREMENT PRIMARY KEY, login VARCHAR(255) NOT NULL UNIQUE, name VARCHAR(255), hash VARCHAR(255))"))
-		std::cout << " Table " << table_users << " create" <<std::endl;
+		std::cout << " Table " << table_users << " created" <<std::endl;
 		else std::cout << " Error: don't created table " << table_users << mysql_error(&ms) << std::endl;
 
 	insert_into_users(ms, table_users, "ALL USERS", "Общий чат", "root");
 
-	if(!mysql_query(&ms, "CREATE TABLE messages(id INT AUTO_INCREMENT PRIMARY KEY, date_time DATETIME, sender VARCHAR(255), recipient varchar(255), event VARCHAR(255), mess TEXT)"))
-		std::cout << " Table " << table_mess << " creared" << std::endl;
+	if(!mysql_query(&ms, "CREATE TABLE messages(id INT AUTO_INCREMENT PRIMARY KEY, sender VARCHAR(255), recipient varchar(255), event VARCHAR(255), mess TEXT)"))
+		std::cout << " Table " << table_mess << " created" << std::endl;
 		else std::cout << " Error: don't created table " << table_mess << mysql_error(&ms) << std::endl;
+
+	insert_into_messsage(ms, table_mess, "non", "non", "non", "non");
 }
 
 //----------------------- Вставка данных в таблицу пользователей --------
@@ -89,6 +91,32 @@ void Chat::insert_into_users(MYSQL&ms, std::string db, std::string log, std::str
 	if (!mysql_query(&ms, str.c_str())) 
 		std::cout << " Участник "<< log << " добавлен" << std::endl;
 		else std::cout << " Error: участник "<< log << " не добавлен" << std::endl << mysql_error(&ms) << std::endl;
+}
+
+// ---------------------- Вставка данных в таблицу сообщений --------------
+void Chat::insert_into_messsage(MYSQL& ms, std::string db, std::string send, std::string rec, std::string ev, std::string mess){
+	std::string str = "INSERT INTO " + db + "(id, sender, recipient, event, mess) VALUES (default, \'" + send + "\', \'" + rec + "\' ,\'" + ev + "\' ,\'" + mess + "\')";
+	if (!mysql_query(&ms, str.c_str()))
+		std::cout << " Сообщение от " << send << " добавлено в таблицу" << std::endl;
+		else std::cout << " Error: сообщение от " << send << " не добавлено в таблицу" << std::endl << mysql_error(&ms) << std::endl;
+}
+
+//----------------------- Вывод таблицы ------------------------------------
+void Chat::show_table(MYSQL&ms, MYSQL_RES* res, MYSQL_ROW& row, std::string table){
+	std::string str = "SELECT * FROM " + table;
+	if(!mysql_query(&ms, str.c_str())){
+		std::cout << " Таблица " << table << ":" << std::endl;
+		if( res = mysql_store_result(&ms)){
+		while(row = mysql_fetch_row(res)){
+			for (int i = 0; i < mysql_num_fields(res); i++){
+				std::cout << "| " << row[i] << " |";
+			}
+			std::cout << std::endl;
+		}
+	}
+	else std::cout << " Ошибка mysql: " << mysql_error(&ms);
+	}
+		else std::cout << " Error: таблица не выведена " << std::endl << mysql_error(&ms) << std::endl;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -393,6 +421,8 @@ void Chat::send_message() {
 //----------------- Основная функция работы чата -------------------------------------------
 void Chat::chat_work(){
 	MYSQL mysql; // Дескриптор соединения c MySql
+	MYSQL_RES* res;
+	MYSQL_ROW row;
 	mysql_init(&mysql);
 
 	reg_all_user();
@@ -402,6 +432,11 @@ void Chat::chat_work(){
 		create_database(mysql);
 		create_table(mysql);
 	}
+	mysql_set_character_set(&mysql, "utf8");
+	std::cout << " connection characterset " << mysql_character_set_name(&mysql) << std::endl;
+	show_table(mysql, res, row, table_users);
+	show_table(mysql, res, row, table_mess);
+
 	socket_file();
 	server_address();
 	connect();
