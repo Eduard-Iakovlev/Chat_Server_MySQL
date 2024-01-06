@@ -119,6 +119,24 @@ void Chat::show_table(MYSQL&ms, MYSQL_RES* res, MYSQL_ROW& row, std::string tabl
 		else std::cout << " Error: таблица не выведена " << std::endl << mysql_error(&ms) << std::endl;
 }
 
+int Chat::number_of_users(MYSQL& ms, MYSQL_RES* res, MYSQL_ROW row, std::string table){
+	std::string str = "SELECT COUNT(*) FROM " + table;
+	if(mysql_query(&ms, str.c_str()))
+		std::cout << "Error: данные по количеству записей не получены " << std::endl
+			<< mysql_error(&ms) << std::endl;
+		else{
+			res = mysql_use_result(&ms);
+			if (res) {
+            // Извлечение строки результата
+            if ((row = mysql_fetch_row(res))) {
+                int count = std::stoi(row[0]); // Преобразование строки в число
+				return count;
+            }
+            mysql_free_result(res);
+        	}
+		}
+}
+
 //--------------------------------------------------------------------------------------------
 
 //--------------------------------- Работа сети ----------------------------------------------
@@ -383,11 +401,6 @@ void Chat::one_user(){
 	transmitting(" Вы пока единственный пользователь.\n Дождитесь регистрации других пользователей.\n");
 }
 
-//------------- Определение количества пользователей --------------------------------
-int Chat::sizeList() {
-	return _users.size();
-}
-
 //------------- Создание и отправка сообщения ---------------------------------------
 void Chat::send_message() {
 	Message messages;
@@ -448,18 +461,18 @@ void Chat::chat_work(){
 		_menu = message0();
 		if (_menu == '3') {
 			transmitting(" сервер завершил работу ");
-			close_socket();
 			mysql_close(&mysql);
+			close_socket();
 			farewell();
 			exit(0);
 		}
 		// вход в аккаунт
 		else if (_menu == '1') {
-			if (sizeList() == 1) {
+			if (number_of_users(mysql, res, row, table_users) == 1) {
 				transmitting("error");
 				continue;
 			}
-			if (sizeList() == 2) {
+			if (number_of_users(mysql, res, row, table_users) == 2) {
 				transmitting("error2");
 				one_user();
 				continue;
@@ -476,7 +489,7 @@ void Chat::chat_work(){
 			registration(_menu, &_check_user);
 		}
 		// проверка кол-ва зарегистрированных
-		if (sizeList() == 2) {
+		if (number_of_users(mysql, res, row, table_users) == 2) {
 			transmitting("error2");
 			one_user();
 			continue;

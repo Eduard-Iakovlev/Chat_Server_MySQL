@@ -37,6 +37,7 @@ public:
 	void insert_into_users(MYSQL& ms, std::string db, std::string log, std::string name, std::string hash); // Вставкаданныых в таблицу пользователя
 	void insert_into_messsage(MYSQL& ms, std::string db, std::string send, std::string rec, std::string ev, std::string mess); // Вставка в таблицу сообщений
 	void show_table(MYSQL& ms, MYSQL_RES* res, MYSQL_ROW& row, std::string table); // Вывод таблицы
+	int number_of_users(MYSQL& ms, MYSQL_RES* res, MYSQL_ROW row, std::string table);
 
 	//------------------------------------------------------------------------------
 
@@ -57,20 +58,15 @@ public:
 
 	void greeting();
 	void farewell();
-	//int logOrReg();
-
-	//int menu_chat();
 
 	bool finding(std::string);
 	bool check_password(std::string, std::string);
 	void registration(char, bool*);
 	void reg_all_user();
 
-	//void showListUsers();
 	std::string active_user_login();
 	std::string active_user_name();
 	std::string active_recipient_login();
-
 
 	void get_user(std::string, std::string);
 	void out_user();
@@ -78,10 +74,7 @@ public:
 
 	void one_user();
 
-	int sizeList();
-
 	void send_message();
-	//void show_message_list();
 
 	void clear_show_user();
 	void clean_console();
@@ -128,8 +121,5 @@ private:
 	const char _enter{ 10 };
 	const char _esc{ 27 };
 #endif // _WIN32
-
-
-
 
 };
