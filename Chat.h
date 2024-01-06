@@ -37,7 +37,8 @@ public:
 	void insert_into_users(MYSQL& ms, std::string db, std::string log, std::string name, std::string hash); // Вставкаданныых в таблицу пользователя
 	void insert_into_messsage(MYSQL& ms, std::string db, std::string send, std::string rec, std::string ev, std::string mess); // Вставка в таблицу сообщений
 	void show_table(MYSQL& ms, MYSQL_RES* res, MYSQL_ROW& row, std::string table); // Вывод таблицы
-	int number_of_users(MYSQL& ms, MYSQL_RES* res, MYSQL_ROW row, std::string table);
+	int number_of_users(MYSQL& ms, MYSQL_RES* res, MYSQL_ROW row, std::string table); // Проверка количества пользователей
+	bool check_login_table(MYSQL& ms, MYSQL_RES* res, MYSQL_ROW& row, std::string table, std::string log); // Проверка логина
 
 	//------------------------------------------------------------------------------
 
@@ -61,7 +62,7 @@ public:
 
 	bool finding(std::string);
 	bool check_password(std::string, std::string);
-	void registration(char, bool*);
+	void registration(char, bool*, MYSQL& ms, MYSQL_RES* res, MYSQL_ROW& row);
 	void reg_all_user();
 
 	std::string active_user_login();
@@ -110,16 +111,5 @@ private:
 	bool _work{ true };
 	bool _check_user{ false };
 	bool _discussion{ true };
-
-	const char _fsymbolLogPass = '0';
-	const char _lsymbolLogPass = '~';
-
-#ifdef _WIN32
-	const char _enter{ 13 };
-	const char _esc{ 27 };
-#else
-	const char _enter{ 10 };
-	const char _esc{ 27 };
-#endif // _WIN32
 
 };
