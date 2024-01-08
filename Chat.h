@@ -63,7 +63,6 @@ public:
 	bool finding(std::string);
 	bool check_password(std::string, std::string);
 	void registration(char, bool*, MYSQL& ms, MYSQL_RES* res, MYSQL_ROW& row);
-	void reg_all_user();
 
 	std::string active_user_login();
 	std::string active_user_name();

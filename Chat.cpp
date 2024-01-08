@@ -345,6 +345,10 @@ void Chat::registration(char menu, bool* check_user, MYSQL& ms, MYSQL_RES* res, 
 		user.get_user_password(message());
 		std::cout << message() << std::endl;
 		insert_into_users(ms, table_users, user.user_login(), user.user_name(), user.user_password());
+		if(check_login_table(ms, res, row, table_users, user.user_login())){
+			*check_user = false;
+			return;
+		}
 		show_table(ms, res, row, table_users);
 
 		_users.emplace(user.user_login(), user);
@@ -353,14 +357,6 @@ void Chat::registration(char menu, bool* check_user, MYSQL& ms, MYSQL_RES* res, 
 	}
 }
 
-//----------------- Регистрация общего чата ---------------------------------------
-void Chat::reg_all_user() {
-	User user;
-	user.get_user_login("ALL_USERS");
-	user.get_user_password("admin");
-	user.get_user_name("общий чат");
-	_users.emplace(user.user_login(), user);
-}
 
 //--------------- Возвращает логин активного пользователя --------------------------
 std::string Chat::active_user_login() {
@@ -509,14 +505,16 @@ void Chat::chat_work(){
 			delete num_users;
 			transmitting(" Вход");
 			registration(_menu, &_check_user, mysql, res, row);
-			if (_check_user == false) {
-				continue;
-			}
+			if (_check_user == false) continue;			
 		}
 		//регистрация нового пользователя
 		else {
 			exchange(" Регистрация:");
 			registration(_menu, &_check_user, mysql, res, row);
+			if(_check_user == false){
+				transmitting("error of registration");
+				continue;
+			}
 		}
 		// проверка кол-ва зарегистрированных
 		if (number_of_users(mysql, res, row, table_users) == 2) {
