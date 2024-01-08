@@ -75,24 +75,24 @@ void Chat::create_table(MYSQL& ms){
 
 	insert_into_users(ms, table_users, "ALL USERS", "Общий чат", "root");
 
-	if(!mysql_query(&ms, "CREATE TABLE messages(id INT AUTO_INCREMENT PRIMARY KEY, sender VARCHAR(255), recipient varchar(255), event VARCHAR(255), mess TEXT)"))
+	if(!mysql_query(&ms, "CREATE TABLE messages(id INT AUTO_INCREMENT PRIMARY KEY, sender VARCHAR(255), recipient varchar(255), mess TEXT)"))
 		std::cout << " Table " << table_mess << " created" << std::endl;
 		else std::cout << " Error: don't created table " << table_mess << mysql_error(&ms) << std::endl;
 
-	insert_into_messsage(ms, table_mess, "non", "non", "non", "non");
+	insert_into_messsage(ms, table_mess, "non", "non", "non");
 }
 
 //----------------------- Вставка данных в таблицу пользователей --------
-void Chat::insert_into_users(MYSQL&ms, std::string db, std::string log, std::string name, std::string hash){
-	std::string str = "INSERT INTO " + db + "(id, login, name, hash) VALUES (default, \'" + log + "\', \'" + name + "\', \'" + hash + "\')";
+void Chat::insert_into_users(MYSQL&ms, std::string table, std::string log, std::string name, std::string hash){
+	std::string str = "INSERT INTO " + table + "(id, login, name, hash) VALUES (default, \'" + log + "\', \'" + name + "\', \'" + hash + "\')";
 	if (!mysql_query(&ms, str.c_str())) 
 		std::cout << " Участник "<< log << " добавлен" << std::endl;
 		else std::cout << " Error: участник "<< log << " не добавлен" << std::endl << mysql_error(&ms) << std::endl;
 }
 
 // ---------------------- Вставка данных в таблицу сообщений --------------
-void Chat::insert_into_messsage(MYSQL& ms, std::string db, std::string send, std::string rec, std::string ev, std::string mess){
-	std::string str = "INSERT INTO " + db + "(id, sender, recipient, event, mess) VALUES (default, \'" + send + "\', \'" + rec + "\' ,\'" + ev + "\' ,\'" + mess + "\')";
+void Chat::insert_into_messsage(MYSQL& ms, std::string table, std::string send, std::string rec, std::string mess){
+	std::string str = "INSERT INTO " + table + "(id, sender, recipient, mess) VALUES (default, \'" + send + "\', \'" + rec + "\' ,\'" + mess + "\')";
 	if (!mysql_query(&ms, str.c_str()))
 		std::cout << " Сообщение от " << send << " добавлено в таблицу" << std::endl;
 		else std::cout << " Error: сообщение от " << send << " не добавлено в таблицу" << std::endl << mysql_error(&ms) << std::endl;
@@ -458,8 +458,6 @@ void Chat::chat_work(){
 	MYSQL_RES* res;
 	MYSQL_ROW row;
 	mysql_init(&mysql);
-
-	reg_all_user();
 	
 	test_msql_descriptor(mysql);
 	if(!connect_to_db(mysql)){
