@@ -19,7 +19,6 @@ std::string Chat::reg_data_mysql(){
 void Chat::test_msql_descriptor(MYSQL& ms) {
 
 	if (&ms == NULL) {
-		// Если дескриптор не получен — выводим сообщение об ошибке
 		std::cout << " Error: can't create MySQL-descriptor" << std::endl;
 		exit(1);
 	};
@@ -35,7 +34,6 @@ bool Chat::connect_to_db(MYSQL& ms){
 		password_db = reg_data_mysql();
 
 		if (!mysql_real_connect(&ms, "localhost", username_db.c_str(), password_db.c_str(), database_chat.c_str(), 0, NULL, 0)) {
-			// Если нет возможности установить соединение с БД выводим сообщение об ошибке
 			std::cout << "Error: can't connect to database " << mysql_error(&ms) << std::endl;
 			if (mysql_errno(&ms) == not_db){
 				std::cout << " No database " <<  database_chat << std::endl;
@@ -47,7 +45,6 @@ bool Chat::connect_to_db(MYSQL& ms){
 			continue;
 		}
 		else {
-			// Если соединение успешно установлено выводим фразу — "Success!"
 			std::cout << "\n Success!" << std::endl;
 			return true;
 			break;
@@ -107,16 +104,17 @@ void Chat::show_table(MYSQL&ms, MYSQL_RES* res, MYSQL_ROW& row, std::string tabl
 	if(!mysql_query(&ms, str.c_str())){
 		std::cout << " Таблица " << table << ":" << std::endl;
 		if( res = mysql_store_result(&ms)){
-		while(row = mysql_fetch_row(res)){
-			for (int i = 0; i < mysql_num_fields(res); i++){
-				std::cout << "| " << row[i] << " |";
+			while(row = mysql_fetch_row(res)){
+				for (int i = 0; i < mysql_num_fields(res); i++){
+					std::cout << "| " << row[i] << " |";
+				}
+				std::cout << std::endl;
 			}
-			std::cout << std::endl;
 		}
+		else std::cout << " Ошибка mysql: " << mysql_error(&ms) << std::endl;
+		mysql_free_result(res);
 	}
-	else std::cout << " Ошибка mysql: " << mysql_error(&ms);
-	}
-		else std::cout << " Error: таблица не выведена " << std::endl << mysql_error(&ms) << std::endl;
+	else std::cout << " Error: таблица не выведена " << std::endl << mysql_error(&ms) << std::endl;
 }
 
 //----------------------- Проверка количества пользователей ------------------
@@ -125,18 +123,19 @@ int Chat::number_of_users(MYSQL& ms, MYSQL_RES* res, MYSQL_ROW row, std::string 
 	if(mysql_query(&ms, str.c_str()))
 		std::cout << "Error: данные по количеству записей не получены " << std::endl
 			<< mysql_error(&ms) << std::endl;
-		else{
-			res = mysql_use_result(&ms);
-			if (res) {
-				// Извлечение строки результата
-				if (row = mysql_fetch_row(res)){
-					int count = std::stoi(row[0]); // Преобразование строки в число
-					std::cout << count << " users" << std::endl;
-					return count;
-				}
+	else{
+		res = mysql_use_result(&ms);
+		if (res) {
+			if (row = mysql_fetch_row(res)){
+				int count = std::stoi(row[0]); 
+				std::cout << count << " users" << std::endl;
 				mysql_free_result(res);
-        	}
-		}
+				return count;
+			}
+       	}
+		mysql_free_result(res);
+	}
+	return -1;
 }
 
 //----------------------- Проверка логина ----------------------------------
@@ -150,13 +149,15 @@ bool Chat::check_login_table(MYSQL& ms, MYSQL_RES* res, MYSQL_ROW& row, std::str
 			if(res){
 				if (row = mysql_fetch_row(res)){
 					int count = std::stoi(row[0]);
+					mysql_free_result(res);
 					std::cout << " logins = " << count << std::endl;
 					if(count > 0) return false;
 					else return true;					
 				}
-				mysql_free_result(res);
 			}
+			mysql_free_result(res);
 	}	
+	return -1;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -485,8 +486,8 @@ void Chat::chat_work(){
 		_menu = message0();
 		if (_menu == '3') {
 			transmitting(" сервер завершил работу ");
-			mysql_close(&mysql);
 			close_socket();
+			mysql_close(&mysql);
 			farewell();
 			exit(0);
 		}
