@@ -131,6 +131,7 @@ int Chat::number_of_users(MYSQL& ms, MYSQL_RES* res, MYSQL_ROW row, std::string 
 				// Извлечение строки результата
 				if (row = mysql_fetch_row(res)){
 					int count = std::stoi(row[0]); // Преобразование строки в число
+					std::cout << count << " users" << std::endl;
 					return count;
 				}
 				mysql_free_result(res);
@@ -138,7 +139,7 @@ int Chat::number_of_users(MYSQL& ms, MYSQL_RES* res, MYSQL_ROW row, std::string 
 		}
 }
 
-//----------------------- ПРоверка логина ----------------------------------
+//----------------------- Проверка логина ----------------------------------
 bool Chat::check_login_table(MYSQL& ms, MYSQL_RES* res, MYSQL_ROW& row, std::string table, std::string log){
 	std::string str = "SELECT COUNT(*) FROM " + table + " WHERE login = \'" + log + "\'";
 	if(mysql_query(&ms, str.c_str()))
@@ -149,6 +150,7 @@ bool Chat::check_login_table(MYSQL& ms, MYSQL_RES* res, MYSQL_ROW& row, std::str
 			if(res){
 				if (row = mysql_fetch_row(res)){
 					int count = std::stoi(row[0]);
+					std::cout << " logins = " << count << std::endl;
 					if(count > 0) return false;
 					else return true;					
 				}
@@ -340,7 +342,9 @@ void Chat::registration(char menu, bool* check_user, MYSQL& ms, MYSQL_RES* res, 
 		exchange(" логин принят");
 		exchange( " Введите пароль (латинский алфавит, цифры, символы): ");
 		user.get_user_password(message());
+		std::cout << message() << std::endl;
 		insert_into_users(ms, table_users, user.user_login(), user.user_name(), user.user_password());
+		show_table(ms, res, row, table_users);
 
 		_users.emplace(user.user_login(), user);
 		get_user(user.user_login(), user.user_name());
@@ -488,15 +492,20 @@ void Chat::chat_work(){
 		}
 		// вход в аккаунт
 		else if (_menu == '1') {
-			if (number_of_users(mysql, res, row, table_users) == 1) {
+			int* num_users = new int;
+			* num_users = number_of_users(mysql, res, row, table_users);
+			if (*num_users == 1) {
 				transmitting("error");
+				delete num_users;
 				continue;
 			}
-			if (number_of_users(mysql, res, row, table_users) == 2) {
+			if (*num_users == 2) {
 				transmitting("error2");
 				one_user();
+				delete num_users;
 				continue;
 			}
+			delete num_users;
 			transmitting(" Вход");
 			registration(_menu, &_check_user, mysql, res, row);
 			if (_check_user == false) {

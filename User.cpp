@@ -41,8 +41,7 @@ void User::get_user_login(std::string login) {
 
 //------------------ Хеширование и присвоение пароля пользователя ----------------------
 void User::get_user_password(std::string password) {
-	std::size_t hashed = hash_fn(password);
-	_password = hashed;
+	_password = password;
 }
 
 //------------------ Очистка логина пользователя. --------------------------------------
