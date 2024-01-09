@@ -484,16 +484,16 @@ void Chat::out_user() {
 }
 
 //--------------- Выбор получателя -------------------------------------------------
-void Chat::get_recipient(char menu) {
+/*void Chat::get_recipient(char menu, MYSQL& ms, MYSQL_RES* res, MYSQL_ROW& row) {
 
 	int counter = 0;
 	if (menu == '2') _active_recipient_login = "ALL_USERS";
 	else {
-		int id{ 0 };
+		std::string login;;
 		do {
 			receiving_user();
-			id = stoi(message());
-			if (id < 1 || id > _users.size()) {
+			login = stoi(message());
+			if (check_login_table(ms, res, row, table_users, login)) {
 				transmitting(" Не верный ID, повторите выбор: ");
 			}
 			else {
@@ -503,15 +503,9 @@ void Chat::get_recipient(char menu) {
 
 		} while (true);
 
-		std::map<std::string, User>::iterator it = _users.begin();
-		for (; it != _users.end(); it++) {
-			counter++;
-			if (counter == id) break;
-		}
-
-		_active_recipient_login = it->second.user_login();
+		_active_recipient_login = login;
 	}
-}
+}*/
 
 //------------------ Отправка сообщение об отсутствии других пользователей
 void Chat::one_user(){
@@ -519,7 +513,7 @@ void Chat::one_user(){
 }
 
 //------------- Создание и отправка сообщения ---------------------------------------
-void Chat::send_message() {
+void Chat::send_message(MYSQL& ms, MYSQL_RES* res, MYSQL_ROW& row) {
 	Message messages;
 	std::string mess{};
 	char menu{ ' ' };
@@ -532,15 +526,10 @@ void Chat::send_message() {
 		}
 		else if (message() == "enter") {
 			exchange("сообщение:");
+			_active_recipient_login = message();
+			receiving_user();
 			mess = message();
-			messages.create_message(mess, _active_user_name, _active_user_login, _active_recipient_login);
-			_messages.push_back(messages);
-			std::cout << "\n Сообщение ";
-			if (_active_recipient_login == "ALL_USERS") std::cout << " в общий чат\n";
-			else {
-				std::cout << " для ";
-				_users.at(_active_recipient_login).showUserName();
-			}
+			insert_into_messsage(ms, table_mess, _active_user_login, _active_user_name, _active_recipient_login, mess);
 			transmitting(" отправлено");
 			break;
 		}
@@ -620,12 +609,12 @@ void Chat::chat_work(){
 		transmit_table_users(mysql, res, row, table_users);
 		transmit_table_messages(mysql, res, row, table_mess);
 		//работа аккаунта
-		account_work();
+		account_work(mysql, res, row);
 	}
 }
 
 //--------------------- Функция работы аккаунта ------------------------------------
-void Chat::account_work(){
+void Chat::account_work(MYSQL& ms, MYSQL_RES* res, MYSQL_ROW& row){
 
 	do {
 		receiving_user();
@@ -634,12 +623,12 @@ void Chat::account_work(){
 		switch (_menu) {
 		case '1': // личная беседа
 			transmitting(" ID собеседника: ");
-			get_recipient(_menu);
-			send_message();
+			//get_recipient(_menu, ms, res, row);
+			send_message(ms, res, row);
 			break;
 		case '2': // сообщение всем
-			get_recipient(_menu);
-			send_message();
+			//get_recipient(_menu, ms, res, row);
+			send_message(ms, res, row);
 			break;
 		case '3': // выход
 			transmitting(" Вы покинули аккаунт.");

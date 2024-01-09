@@ -72,18 +72,18 @@ public:
 
 	void get_user(std::string, std::string);
 	void out_user();
-	void get_recipient(char);
+	//void get_recipient(char menu, MYSQL& ms, MYSQL_RES* res, MYSQL_ROW& row);
 
 	void one_user();
 
-	void send_message();
+	void send_message(MYSQL& ms, MYSQL_RES* res, MYSQL_ROW& row);
 
 	void clear_show_user();
 	void clean_console();
 	void system_pause(int second);
 
 	void chat_work();
-	void account_work();
+	void account_work(MYSQL& ms, MYSQL_RES* res, MYSQL_ROW& row);
 
 
 private:
