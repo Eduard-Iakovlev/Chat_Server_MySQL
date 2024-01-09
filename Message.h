@@ -13,6 +13,8 @@ public:
 
 	std::string login_sender();
 	std::string login_recipient();
+	std::string name_sender();
+	std::string return_mess();
 
 private:
 	std::string _mass;

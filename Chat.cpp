@@ -75,11 +75,11 @@ void Chat::create_table(MYSQL& ms){
 
 	insert_into_users(ms, table_users, "ALL USERS", "Общий чат", "root");
 
-	if(!mysql_query(&ms, "CREATE TABLE messages(id INT AUTO_INCREMENT PRIMARY KEY, sender VARCHAR(255), recipient varchar(255), mess TEXT)"))
+	if(!mysql_query(&ms, "CREATE TABLE messages(id INT AUTO_INCREMENT PRIMARY KEY, sender VARCHAR(255), name VARCHAR(255), recipient VARCHAR(255), mess TEXT)"))
 		std::cout << " Table " << table_mess << " created" << std::endl;
 		else std::cout << " Error: don't created table " << table_mess << mysql_error(&ms) << std::endl;
 
-	insert_into_messsage(ms, table_mess, "non", "non", "non");
+	insert_into_messsage(ms, table_mess, "ALL USERS", "Общий чат", "ALL USERS", "Вы в общем чате");
 }
 
 //----------------------- Вставка данных в таблицу пользователей --------
@@ -91,8 +91,8 @@ void Chat::insert_into_users(MYSQL&ms, std::string table, std::string log, std::
 }
 
 // ---------------------- Вставка данных в таблицу сообщений --------------
-void Chat::insert_into_messsage(MYSQL& ms, std::string table, std::string send, std::string rec, std::string mess){
-	std::string str = "INSERT INTO " + table + "(id, sender, recipient, mess) VALUES (default, \'" + send + "\', \'" + rec + "\' ,\'" + mess + "\')";
+void Chat::insert_into_messsage(MYSQL& ms, std::string table, std::string send, std::string name, std::string rec, std::string mess){
+	std::string str = "INSERT INTO " + table + "(id, sender, name, recipient, mess) VALUES (default, \'" + send + "\', \'" + name + "\', \'" + rec +"\' ,\'" + mess + "\')";
 	if (!mysql_query(&ms, str.c_str()))
 		std::cout << " Сообщение от " << send << " добавлено в таблицу" << std::endl;
 		else std::cout << " Error: сообщение от " << send << " не добавлено в таблицу" << std::endl << mysql_error(&ms) << std::endl;
@@ -115,6 +115,77 @@ void Chat::show_table(MYSQL&ms, MYSQL_RES* res, MYSQL_ROW& row, std::string tabl
 		mysql_free_result(res);
 	}
 	else std::cout << " Error: таблица не выведена " << std::endl << mysql_error(&ms) << std::endl;
+}
+
+//---------------------- Передача данных таблиц ------------------------
+void Chat::transmit_table_users(MYSQL& ms, MYSQL_RES* res, MYSQL_ROW& row, std::string table){
+	User user;
+	std::string str = "SELECT * FROM " + table;
+	if(!mysql_query(&ms, str.c_str())){
+		if( res = mysql_store_result(&ms)){
+			while(row = mysql_fetch_row(res)){
+				for (int i = 0; i < mysql_num_fields(res); i++){
+					switch(i){
+						case 1:
+						user.get_user_login(row[i]);
+						std::cout << " user login" << user.user_login() << std::endl;
+						break;
+						case 2:
+						user.get_user_name(row[i]);
+						std::cout << " user name" << user.user_name() << std::endl;
+						break;
+						default:
+						break;
+					}
+				}
+				transmitting(user.user_login());
+				transmitting(user.user_name());				
+			}
+			mysql_free_result(res);
+			transmitting("end of transmitting");
+		}
+		else std::cout << " Ошибка mysql: " << mysql_error(&ms) << std::endl;
+	}
+	else std::cout << " Error: таблица не получена " << std::endl << mysql_error(&ms) << std::endl;
+}
+
+void Chat::transmit_table_messages(MYSQL& ms, MYSQL_RES* res, MYSQL_ROW& row, std::string table){
+	Message messages;
+	std::string sender, rec, name, mess; 
+	std::string str = "SELECT * FROM " + table;
+	if(!mysql_query(&ms, str.c_str())){
+		if( res = mysql_store_result(&ms)){
+			while(row = mysql_fetch_row(res)){
+				for (int i = 0; i < mysql_num_fields(res); i++){
+					switch (i){
+					case 1:
+						sender = row[i];
+						break;
+					case 2:
+						name = row[i];
+						break;
+					case 3:
+						rec = row[i];
+						break;
+					case 4:
+						mess = row[i];
+						break;
+					default:
+						break;
+					}
+				}
+				messages.create_message(mess, name, sender, rec);
+				transmitting(messages.login_sender());
+				transmitting(messages.name_sender());
+				transmitting(messages.login_recipient());
+				transmitting(messages.return_mess());
+			}
+			mysql_free_result(res);
+			transmitting("end of transmitting");
+		}
+		else std::cout << " Ошибка mysql: " << mysql_error(&ms) << std::endl;
+	}
+	else std::cout << " Error: таблица не получена " << std::endl << mysql_error(&ms) << std::endl;
 }
 
 //----------------------- Проверка количества пользователей ------------------
@@ -150,7 +221,6 @@ bool Chat::check_login_table(MYSQL& ms, MYSQL_RES* res, MYSQL_ROW& row, std::str
 				if (row = mysql_fetch_row(res)){
 					int count = std::stoi(row[0]);
 					mysql_free_result(res);
-					std::cout << " logins = " << count << std::endl;
 					if(count > 0) return false;
 					else return true;					
 				}
@@ -158,6 +228,46 @@ bool Chat::check_login_table(MYSQL& ms, MYSQL_RES* res, MYSQL_ROW& row, std::str
 			mysql_free_result(res);
 	}	
 	return -1;
+}
+
+//----------------------- Проверка пароля --------------------------------------
+bool Chat::check_pass_table(MYSQL &ms, MYSQL_RES *res, MYSQL_ROW &row, std::string table, std::string log, std::string pass)
+{
+std::string str = "SELECT COUNT(*) FROM " + table + " WHERE login = \'" + log + "\' AND hash = \'" + pass + "\'";
+	if(mysql_query(&ms, str.c_str()))
+		std::cout << " Erorr: сбой проверки пароля " << std::endl
+			<< mysql_error(&ms) << std::endl;
+	else{
+			res = mysql_use_result(&ms);
+			if(res){
+				if (row = mysql_fetch_row(res)){
+					int count = std::stoi(row[0]);
+					mysql_free_result(res);
+					if(count == 1) return false;
+					else return true;					
+				}
+			}
+			mysql_free_result(res);
+	}	
+	return false;
+}
+
+//------------------------ Получение имени пользователя ---------------------------------------
+std::string Chat::name_user (MYSQL& ms, MYSQL_RES* res, MYSQL_ROW& row, std::string table, std::string log){
+		std::string str = "SELECT name FROM " + table + " WHERE login = \'" + log + "\'";
+	std::string name;
+	if(mysql_query(&ms, str.c_str()))
+		std::cout << " Erorr: сбой получения имени " << std::endl << mysql_error(&ms) << std::endl;
+	else{
+		res = mysql_use_result(&ms);
+		if(res){
+			if (row = mysql_fetch_row(res)){
+				name = row[0];
+			}
+		}
+		mysql_free_result(res);
+		return name;
+	}	
 }
 
 //--------------------------------------------------------------------------------------------
@@ -289,17 +399,6 @@ void Chat::farewell() {
 	std::cout << " Пользователь отключился от сети.\n";
 }
 
-//--------------- Проверка логина -------------------------------------------------------
-bool Chat::finding(std::string login) {
-	if (_users.find(login) == _users.end()) return true;
-	else return false;
-}
-
-//--------------- Проверка пароля -------------------------------------------------------
-bool Chat::check_password(std::string password, std::string login) {
-	if (_users.at(login).user_password() == password) return true;
-	else return false;
-}
 
 //--------------- Вход и регистрация ----------------------------------------------------
 void Chat::registration(char menu, bool* check_user, MYSQL& ms, MYSQL_RES* res, MYSQL_ROW& row) {
@@ -313,18 +412,18 @@ void Chat::registration(char menu, bool* check_user, MYSQL& ms, MYSQL_RES* res, 
 		exchange(" Введите пароль(латинский алфавит, цифры, символы): ");
 		user.get_user_password(message());
 		int counter = 0;
-
-		if (!finding(user.user_login()) && check_password(user.user_password(), user.user_login())) {
-			get_user(user.user_login(), _users.at(user.user_login()).user_name());
-			transmitting("вход выполнен");
+		if (!check_pass_table(ms, res, row, table_users, user.user_login(), user.user_password())) {
+			user.get_user_name(name_user(ms, res, row, table_users, user.user_login()));
+			get_user(user.user_login(), user.user_name());
+			transmitting(user.user_name());
 			*check_user = true;
 		}
 		else {
 			transmitting("false");
 			return;
 		}
-
 	}
+
 	// регистрация нового пользователя
 	else {
 		*check_user = true;
@@ -350,10 +449,7 @@ void Chat::registration(char menu, bool* check_user, MYSQL& ms, MYSQL_RES* res, 
 			return;
 		}
 		show_table(ms, res, row, table_users);
-
-		_users.emplace(user.user_login(), user);
-		get_user(user.user_login(), user.user_name());
-		exchange("регистрация прошла успешно");
+		exchange("reg ok");
 	}
 }
 
@@ -521,6 +617,8 @@ void Chat::chat_work(){
 			continue;
 		}
 		else transmitting("список доступен");
+		transmit_table_users(mysql, res, row, table_users);
+		transmit_table_messages(mysql, res, row, table_mess);
 		//работа аккаунта
 		account_work();
 	}

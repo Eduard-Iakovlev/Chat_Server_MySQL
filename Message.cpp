@@ -28,3 +28,12 @@ std::string Message::login_sender() {
 std::string Message::login_recipient() {
 	return _login_recipient;
 }
+
+std::string Message::name_sender(){
+	return _name_sender;
+}
+
+//--------- возвращает сообщение ------------------------------------------------
+std::string Message::return_mess(){
+	return _mass;
+}
