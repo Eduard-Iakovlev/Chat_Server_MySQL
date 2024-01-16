@@ -85,6 +85,12 @@ build CMakeFiles/Chat_Server.dir/Get.cpp.o: CXX_COMPILER__Chat_Server_Debug /hom
   OBJECT_DIR = CMakeFiles/Chat_Server.dir
   OBJECT_FILE_DIR = CMakeFiles/Chat_Server.dir
 
+build CMakeFiles/Chat_Server.dir/Logger.cpp.o: CXX_COMPILER__Chat_Server_Debug /home/eduard/projects/Chat/Chat_Server/Logger.cpp || cmake_object_order_depends_target_Chat_Server
+  DEP_FILE = CMakeFiles/Chat_Server.dir/Logger.cpp.o.d
+  FLAGS = -g -std=gnu++20
+  OBJECT_DIR = CMakeFiles/Chat_Server.dir
+  OBJECT_FILE_DIR = CMakeFiles/Chat_Server.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target Chat_Server
@@ -93,7 +99,7 @@ build CMakeFiles/Chat_Server.dir/Get.cpp.o: CXX_COMPILER__Chat_Server_Debug /hom
 #############################################
 # Link the executable Chat_Server
 
-build Chat_Server: CXX_EXECUTABLE_LINKER__Chat_Server_Debug CMakeFiles/Chat_Server.dir/Chat_Server.cpp.o CMakeFiles/Chat_Server.dir/Hash.cpp.o CMakeFiles/Chat_Server.dir/Message.cpp.o CMakeFiles/Chat_Server.dir/User.cpp.o CMakeFiles/Chat_Server.dir/Chat.cpp.o CMakeFiles/Chat_Server.dir/Get.cpp.o
+build Chat_Server: CXX_EXECUTABLE_LINKER__Chat_Server_Debug CMakeFiles/Chat_Server.dir/Chat_Server.cpp.o CMakeFiles/Chat_Server.dir/Hash.cpp.o CMakeFiles/Chat_Server.dir/Message.cpp.o CMakeFiles/Chat_Server.dir/User.cpp.o CMakeFiles/Chat_Server.dir/Chat.cpp.o CMakeFiles/Chat_Server.dir/Get.cpp.o CMakeFiles/Chat_Server.dir/Logger.cpp.o
   FLAGS = -g
   LINK_LIBRARIES = -lmysqlclient
   OBJECT_DIR = CMakeFiles/Chat_Server.dir
