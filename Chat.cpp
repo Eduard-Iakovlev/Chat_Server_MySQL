@@ -1,4 +1,5 @@
 ﻿#include "Chat.h"
+#include "Logger.h"
 
 Chat::Chat(){
 	greeting();
@@ -18,8 +19,9 @@ std::string Chat::reg_data_mysql(){
 //------------------ Проверка на получение дискриптора ------------------
 void Chat::test_msql_descriptor(MYSQL& ms) {
 
-	if (&ms == NULL) {
-		std::cout << " Error: can't create MySQL-descriptor" << std::endl;
+	if (&ms == NULL){
+		log(" Error: can't create MySQL-descriptor");
+		//std::cout << " Error: can't create MySQL-descriptor" << std::endl;
 		exit(1);
 	};
 	std::cout << " MySQL-descriptor created" << std::endl;
@@ -34,7 +36,9 @@ bool Chat::connect_to_db(MYSQL& ms){
 		password_db = reg_data_mysql();
 
 		if (!mysql_real_connect(&ms, "localhost", username_db.c_str(), password_db.c_str(), database_chat.c_str(), 0, NULL, 0)) {
-			std::cout << "Error: can't connect to database " << mysql_error(&ms) << std::endl;
+			//std::cout << " Error: can't connect to database " << mysql_error(&ms) << std::endl;
+			std::cout << " Error: can't connect to database " << std::endl;
+			log(mysql_error(&ms));
 			if (mysql_errno(&ms) == not_db){
 				std::cout << " No database " <<  database_chat << std::endl;
 				std::cout << " need for create database" << std::endl;
@@ -54,40 +58,55 @@ bool Chat::connect_to_db(MYSQL& ms){
 
 //----------------------- Сщздание базы двнных -------------------------
 void Chat::create_database(MYSQL&ms){
-	if(!mysql_real_connect(&ms, "localhost", username_db.c_str(), password_db.c_str(), NULL, 0, NULL, 0))
-		std::cout << " Error: don't connect to server MySQL" << mysql_error(&ms) << std::endl;
+	if(!mysql_real_connect(&ms, "localhost", username_db.c_str(), password_db.c_str(), NULL, 0, NULL, 0)){
+		//std::cout << " Error: don't connect to server MySQL" << mysql_error(&ms) << std::endl;
+		std::cout << " Error: don't connect to server MySQL" << std::endl;
+		log(mysql_error(&ms));
+		}
 		else std::cout << " Connected to server MySQL" << std::endl;
 
 	if(!mysql_query(&ms, "CREATE DATABASE chat"))
 		std::cout << " Created database chat" << std::endl;
-		else std::cout << " Error: don't create database chat" << std::endl;
+		else log(" Error: don't create database chat");//std::cout << " Error: don't create database chat" << std::endl;
 
 	if(!mysql_query(&ms, "USE chat"))
 		std::cout << " use chat applied" << std::endl;
-		else std::cout << " Error: don't use database chat" << std::endl;
+		else log(" Error: don't use database chat");//std::cout << " Error: don't use database chat" << std::endl;
 }
 
 //----------------------- Создание таблицы ------------------------------
 void Chat::create_table(MYSQL& ms){
 	if(!mysql_query(&ms, "CREATE TABLE users(id INT AUTO_INCREMENT PRIMARY KEY, login VARCHAR(255) NOT NULL UNIQUE, name VARCHAR(255), hash VARCHAR(255))"))
 		std::cout << " Table " << table_users << " created" <<std::endl;
-		else std::cout << " Error: don't created table " << table_users << mysql_error(&ms) << std::endl;
+		else{ 
+			//std::cout << " Error: don't created table " << table_users << mysql_error(&ms) << std::endl;
+			std::cout << " Error: don't created table " << table_users << std::endl;
+			log(mysql_error(&ms));
+		}
 
 	insert_into_users(ms, table_users, "ALL USERS", "Общий чат", "root");
 
 	if(!mysql_query(&ms, "CREATE TABLE messages(id INT AUTO_INCREMENT PRIMARY KEY, sender VARCHAR(255), name VARCHAR(255), recipient VARCHAR(255), mess TEXT)"))
 		std::cout << " Table " << table_mess << " created" << std::endl;
-		else std::cout << " Error: don't created table " << table_mess << mysql_error(&ms) << std::endl;
+		else{ 
+			//std::cout << " Error: don't created table " << table_mess << mysql_error(&ms) << std::endl;
+			std::cout << " Error: don't created table " << table_mess << std::endl;
+			log(mysql_error(&ms));
+		}
 
 	insert_into_messsage(ms, table_mess, "ALL USERS", "Общий чат", "ALL USERS", "Вы в общем чате");
 }
 
 //----------------------- Вставка данных в таблицу пользователей --------
-void Chat::insert_into_users(MYSQL&ms, std::string table, std::string log, std::string name, std::string hash){
-	std::string str = "INSERT INTO " + table + "(id, login, name, hash) VALUES (default, \'" + log + "\', \'" + name + "\', \'" + hash + "\')";
+void Chat::insert_into_users(MYSQL&ms, std::string table, std::string login, std::string name, std::string hash){
+	std::string str = "INSERT INTO " + table + "(id, login, name, hash) VALUES (default, \'" + login + "\', \'" + name + "\', \'" + hash + "\')";
 	if (!mysql_query(&ms, str.c_str())) 
-		std::cout << " Участник "<< log << " добавлен" << std::endl;
-		else std::cout << " Error: участник "<< log << " не добавлен" << std::endl << mysql_error(&ms) << std::endl;
+		std::cout << " Участник " << login << " добавлен" << std::endl;
+		else{ 
+			//std::cout << " Error: участник "<< log << " не добавлен" << std::endl << mysql_error(&ms) << std::endl;
+			std::cout << " Error: участник " << login << " не добавлен" << std::endl;
+			log(mysql_error(&ms));
+		}
 }
 
 // ---------------------- Вставка данных в таблицу сообщений --------------
@@ -95,7 +114,11 @@ void Chat::insert_into_messsage(MYSQL& ms, std::string table, std::string send, 
 	std::string str = "INSERT INTO " + table + "(id, sender, name, recipient, mess) VALUES (default, \'" + send + "\', \'" + name + "\', \'" + rec +"\' ,\'" + mess + "\')";
 	if (!mysql_query(&ms, str.c_str()))
 		std::cout << " Сообщение от " << send << " добавлено в таблицу" << std::endl;
-		else std::cout << " Error: сообщение от " << send << " не добавлено в таблицу" << std::endl << mysql_error(&ms) << std::endl;
+		else{ 
+			//std::cout << " Error: сообщение от " << send << " не добавлено в таблицу" << std::endl << mysql_error(&ms) << std::endl;
+			std::cout << " Error: сообщение от " << send << " не добавлено в таблицу" << std::endl;
+			log(mysql_error(&ms));
+		}
 }
 
 //----------------------- Вывод таблицы ------------------------------------
@@ -111,10 +134,18 @@ void Chat::show_table(MYSQL&ms, MYSQL_RES* res, MYSQL_ROW& row, std::string tabl
 				std::cout << std::endl;
 			}
 		}
-		else std::cout << " Ошибка mysql: " << mysql_error(&ms) << std::endl;
+		else{ 
+			//std::cout << " Ошибка mysql: " << mysql_error(&ms) << std::endl;
+			std::cout << " Ошибка mysql: " << std::endl;
+			log(mysql_error(&ms));
+		}
 		mysql_free_result(res);
 	}
-	else std::cout << " Error: таблица не выведена " << std::endl << mysql_error(&ms) << std::endl;
+	else{ 
+		//std::cout << " Error: таблица не выведена " << std::endl << mysql_error(&ms) << std::endl;
+		std::cout << " Error: таблица не выведена " << std::endl;
+		log(mysql_error(&ms));
+	}
 }
 
 //---------------------- Передача данных таблиц ------------------------
@@ -144,9 +175,17 @@ void Chat::transmit_table_users(MYSQL& ms, MYSQL_RES* res, MYSQL_ROW& row, std::
 			mysql_free_result(res);
 			transmitting("end of transmitting");
 		}
-		else std::cout << " Ошибка mysql: " << mysql_error(&ms) << std::endl;
+		else{ 
+			//std::cout << " Ошибка mysql: " << mysql_error(&ms) << std::endl;
+			std::cout << " Ошибка mysql: " << std::endl;
+			log(mysql_error(&ms));
+		}
 	}
-	else std::cout << " Error: таблица не получена " << std::endl << mysql_error(&ms) << std::endl;
+	else{ 
+		//std::cout << " Error: таблица не получена " << std::endl << mysql_error(&ms) << std::endl;
+		std::cout << " Error: таблица не получена " << std::endl;
+		log(mysql_error(&ms));
+	}
 }
 
 void Chat::transmit_table_messages(MYSQL& ms, MYSQL_RES* res, MYSQL_ROW& row, std::string table){
@@ -183,17 +222,28 @@ void Chat::transmit_table_messages(MYSQL& ms, MYSQL_RES* res, MYSQL_ROW& row, st
 			mysql_free_result(res);
 			transmitting("end of transmitting");
 		}
-		else std::cout << " Ошибка mysql: " << mysql_error(&ms) << std::endl;
+		else{ 
+			//std::cout << " Ошибка mysql: " << mysql_error(&ms) << std::endl;
+			std::cout << " Ошибка mysql: " << std::endl;
+			log(mysql_error(&ms));
+		}
 	}
-	else std::cout << " Error: таблица не получена " << std::endl << mysql_error(&ms) << std::endl;
+	else{ 
+		//std::cout << " Error: таблица не получена " << std::endl << mysql_error(&ms) << std::endl;
+		std::cout << " Error: таблица не получена " << std::endl;
+		log(mysql_error(&ms));
+	}
 }
 
 //----------------------- Проверка количества пользователей ------------------
 int Chat::number_of_users(MYSQL& ms, MYSQL_RES* res, MYSQL_ROW row, std::string table){
 	std::string str = "SELECT COUNT(*) FROM " + table;
-	if(mysql_query(&ms, str.c_str()))
-		std::cout << "Error: данные по количеству записей не получены " << std::endl
-			<< mysql_error(&ms) << std::endl;
+	if(mysql_query(&ms, str.c_str())){
+		//std::cout << "Error: данные по количеству записей не получены " << std::endl
+		//	<< mysql_error(&ms) << std::endl;
+		std::cout << "Error: данные по количеству записей не получены " << std::endl;
+		log(mysql_error(&ms));
+	}
 	else{
 		res = mysql_use_result(&ms);
 		if (res) {
@@ -210,11 +260,14 @@ int Chat::number_of_users(MYSQL& ms, MYSQL_RES* res, MYSQL_ROW row, std::string 
 }
 
 //----------------------- Проверка логина ----------------------------------
-bool Chat::check_login_table(MYSQL& ms, MYSQL_RES* res, MYSQL_ROW& row, std::string table, std::string log){
-	std::string str = "SELECT COUNT(*) FROM " + table + " WHERE login = \'" + log + "\'";
-	if(mysql_query(&ms, str.c_str()))
-		std::cout << " Erorr: сбой проверки логина " << std::endl
-			<< mysql_error(&ms) << std::endl;
+bool Chat::check_login_table(MYSQL& ms, MYSQL_RES* res, MYSQL_ROW& row, std::string table, std::string login){
+	std::string str = "SELECT COUNT(*) FROM " + table + " WHERE login = \'" + login + "\'";
+	if(mysql_query(&ms, str.c_str())){
+		//std::cout << " Erorr: сбой проверки логина " << std::endl
+		//	<< mysql_error(&ms) << std::endl;
+		std::cout << " Erorr: сбой проверки логина " << std::endl;
+		log(mysql_error(&ms));
+	}
 	else{
 			res = mysql_use_result(&ms);
 			if(res){
@@ -231,12 +284,15 @@ bool Chat::check_login_table(MYSQL& ms, MYSQL_RES* res, MYSQL_ROW& row, std::str
 }
 
 //----------------------- Проверка пароля --------------------------------------
-bool Chat::check_pass_table(MYSQL &ms, MYSQL_RES *res, MYSQL_ROW &row, std::string table, std::string log, std::string pass)
+bool Chat::check_pass_table(MYSQL &ms, MYSQL_RES *res, MYSQL_ROW &row, std::string table, std::string login, std::string pass)
 {
-std::string str = "SELECT COUNT(*) FROM " + table + " WHERE login = \'" + log + "\' AND hash = \'" + pass + "\'";
-	if(mysql_query(&ms, str.c_str()))
-		std::cout << " Erorr: сбой проверки пароля " << std::endl
-			<< mysql_error(&ms) << std::endl;
+std::string str = "SELECT COUNT(*) FROM " + table + " WHERE login = \'" + login + "\' AND hash = \'" + pass + "\'";
+	if(mysql_query(&ms, str.c_str())){
+		//std::cout << " Erorr: сбой проверки пароля " << std::endl
+		//	<< mysql_error(&ms) << std::endl;
+		std::cout << " Erorr: сбой проверки пароля " << std::endl;
+		log(mysql_error(&ms));
+	}
 	else{
 			res = mysql_use_result(&ms);
 			if(res){
@@ -253,11 +309,13 @@ std::string str = "SELECT COUNT(*) FROM " + table + " WHERE login = \'" + log + 
 }
 
 //------------------------ Получение имени пользователя ---------------------------------------
-std::string Chat::name_user (MYSQL& ms, MYSQL_RES* res, MYSQL_ROW& row, std::string table, std::string log){
-		std::string str = "SELECT name FROM " + table + " WHERE login = \'" + log + "\'";
+std::string Chat::name_user (MYSQL& ms, MYSQL_RES* res, MYSQL_ROW& row, std::string table, std::string login){
+		std::string str = "SELECT name FROM " + table + " WHERE login = \'" + login + "\'";
 	std::string name;
-	if(mysql_query(&ms, str.c_str()))
-		std::cout << " Erorr: сбой получения имени " << std::endl << mysql_error(&ms) << std::endl;
+	if(mysql_query(&ms, str.c_str())){
+		std::cout << " Erorr: сбой получения имени " << std::endl;
+		log(mysql_error(&ms));
+	}
 	else{
 		res = mysql_use_result(&ms);
 		if(res){
@@ -277,7 +335,8 @@ std::string Chat::name_user (MYSQL& ms, MYSQL_RES* res, MYSQL_ROW& row, std::str
 void Chat::socket_file() {
 	_socket_file_descriptor = socket(AF_INET, SOCK_STREAM, 0);
 	if (_socket_file_descriptor == -1) {
-		std::cout << " Не удалось создать сокет!" << std::endl;
+		//std::cout << " Не удалось создать сокет!" << std::endl;
+		log(" Не удалось создать сокет!");
 		exit(1);
 	}
 }
@@ -303,7 +362,8 @@ void Chat::server_address() {
 	_bind_status = bind(_socket_file_descriptor, (struct sockaddr*)&_server_address,
 		sizeof(_server_address));
 	if (_bind_status == -1) {
-		std::cout << " Не удалось выполнить привязку сокета!" << std::endl;
+		//std::cout << " Не удалось выполнить привязку сокета!" << std::endl;
+		log(" Не удалось выполнить привязку сокета!");
 		exit(1);
 	}
 }
@@ -312,7 +372,8 @@ void Chat::server_address() {
 void Chat::connect() {
 	_connection_status = listen(_socket_file_descriptor, 5);
 	if (_connection_status == -1) {
-		std::cout << " Сокет не может прослушивать новые подключения!" << "\n";
+		//std::cout << " Сокет не может прослушивать новые подключения!" << "\n";
+		log(" Сокет не может прослушивать новые подключения!");
 		exit(1);
 	}
 	else {
@@ -321,7 +382,8 @@ void Chat::connect() {
 	_length = sizeof(_client);
 	_connection = accept(_socket_file_descriptor, (struct sockaddr*)&_client, &_length);
 	if (_connection == -1) {
-		std::cout << " Сервер не может принять данные от клиента!" << "\n";
+		//std::cout << " Сервер не может принять данные от клиента!" << "\n";
+		log(" Сервер не может принять данные от клиента!");
 		exit(1);
 	}
 }
@@ -383,6 +445,19 @@ void Chat::transmitted(std::string mess){
 	auto now = std::chrono::system_clock::now();
 	std::time_t end_time = std::chrono::system_clock::to_time_t(now);
 	std::cout << std::ctime(&end_time) << " передано: " << mess << std::endl;
+}
+
+void Chat::log(std::string mess){
+	auto now = std::chrono::system_clock::now();
+	std::time_t end_time = std::chrono::system_clock::to_time_t(now);
+	std::string message = std::ctime(&end_time) + mess;
+	Logger logger(message);
+
+	std::thread apped(&Logger::apped_to_log, &logger);
+	std::thread read(&Logger::read_last_line, &logger);
+
+	apped.join();
+	read.join();
 }
 //------------------------------------------------------------------------------------------
 

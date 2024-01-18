@@ -34,15 +34,15 @@ public:
 	bool connect_to_db(MYSQL& ms); // подключение к базе данных
 	void create_database(MYSQL& ms); // создание базы дынных
 	void create_table(MYSQL& ms); // создание таблиц
-	void insert_into_users(MYSQL& ms, std::string table, std::string log, std::string name, std::string hash); // Вставкаданныых в таблицу пользователя
+	void insert_into_users(MYSQL& ms, std::string table, std::string login, std::string name, std::string hash); // Вставкаданныых в таблицу пользователя
 	void insert_into_messsage(MYSQL& ms, std::string table, std::string send, std::string name, std::string rec, std::string mess); // Вставка в таблицу сообщений
 	void show_table(MYSQL& ms, MYSQL_RES* res, MYSQL_ROW& row, std::string table); // Вывод таблицы
 	void transmit_table_users(MYSQL& ms, MYSQL_RES* res, MYSQL_ROW& row, std::string table); // передача данных таблицы users
 	void transmit_table_messages(MYSQL& ms, MYSQL_RES* res, MYSQL_ROW& row, std::string table); // передача данных таблицы messages
 	int number_of_users(MYSQL& ms, MYSQL_RES* res, MYSQL_ROW row, std::string table); // Проверка количества пользователей
-	bool check_login_table(MYSQL& ms, MYSQL_RES* res, MYSQL_ROW& row, std::string table, std::string log); // Проверка логина
-	bool check_pass_table(MYSQL& ms, MYSQL_RES* res, MYSQL_ROW& row, std::string table, std::string log, std::string pass); // Проверка пароля
-	std::string name_user (MYSQL& ms, MYSQL_RES* res, MYSQL_ROW& row, std::string table, std::string log); // получение имени пользователя
+	bool check_login_table(MYSQL& ms, MYSQL_RES* res, MYSQL_ROW& row, std::string table, std::string login); // Проверка логина
+	bool check_pass_table(MYSQL& ms, MYSQL_RES* res, MYSQL_ROW& row, std::string table, std::string login, std::string pass); // Проверка пароля
+	std::string name_user (MYSQL& ms, MYSQL_RES* res, MYSQL_ROW& row, std::string table, std::string login); // получение имени пользователя
 
 	//------------------------------------------------------------------------------
 
@@ -59,6 +59,7 @@ public:
 	std::string message();// Перевод сообщения в стринг
 	void accepted(std::string mess);
 	void transmitted(std::string mess);
+	void log(std::string mess);
 	//------------------------------------------------------------------------------
 
 	void greeting();
