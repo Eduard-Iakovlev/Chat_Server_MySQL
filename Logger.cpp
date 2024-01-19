@@ -16,7 +16,7 @@ Logger::~Logger(){
 }
 
 void Logger::read_last_line(){
-    std::cout << " запиано в журнал: " << get_last_line() << std::endl;
+    std::cout << " запись в журнале: \n" << get_last_line() << std::endl;
 }
 
 void Logger::apped_to_log(){

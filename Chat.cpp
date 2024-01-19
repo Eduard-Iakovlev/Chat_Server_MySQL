@@ -436,20 +436,25 @@ std::string Chat::message() {
 }
 
 void Chat::accepted(std::string mess){
-	auto now = std::chrono::system_clock::now();
-	std::time_t end_time = std::chrono::system_clock::to_time_t(now);
-	std::cout << std::ctime(&end_time) << " принято: " << mess << std::endl;
+	//auto now = std::chrono::system_clock::now();
+	//std::time_t end_time = std::chrono::system_clock::to_time_t(now);
+	//std::cout << std::ctime(&end_time) << " принято: " << mess << std::endl;
+	mess = " принято: " + mess;
+	log(mess);
 }
 
 void Chat::transmitted(std::string mess){
-	auto now = std::chrono::system_clock::now();
-	std::time_t end_time = std::chrono::system_clock::to_time_t(now);
-	std::cout << std::ctime(&end_time) << " передано: " << mess << std::endl;
+	//auto now = std::chrono::system_clock::now();
+	//std::time_t end_time = std::chrono::system_clock::to_time_t(now);
+	//std::cout << std::ctime(&end_time) << " передано: " << mess << std::endl;
+	mess = " передано: " + mess;
+	log(mess);
 }
 
 void Chat::log(std::string mess){
 	auto now = std::chrono::system_clock::now();
 	std::time_t end_time = std::chrono::system_clock::to_time_t(now);
+	std::cout << std::ctime(&end_time);
 	std::string message = std::ctime(&end_time) + mess;
 	Logger logger(message);
 
